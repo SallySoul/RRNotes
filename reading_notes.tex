@@ -1,0 +1,108 @@
+\documentclass{report}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage{fullpage}
+\usepackage[backend=bibtex,style=numeric]{biblatex}
+\bibliography{references} 
+
+\title{Reading Notes}
+\author{Russell Bentley}
+\begin{document}
+\tableofcontents
+
+\chapter{Relaxation Method and the Smoothing Properties}
+
+\section{Residual Correction}
+
+Consider the linear equation $Ax = b$ for which we create a sequence of
+approximate solutions $x^{(i)}$.
+Then the residual $r^{(i)}$ can be defined as
+
+$$r^{(i)} = b - Ax^{(i)}$$.
+
+We can also define the error $e^{(i)}$ as $e^{(i)} = x - x^{(i)}$.
+Then some algebra later we have what is known as the residual equation
+
+$$r^{(i)} = Ae^{(i)}$$.
+
+We use this equation in a method called residual based correction.
+$r^{(i)}$, which can be computed for $x^{(i)}$, is an
+indicator for the size of the error $e^{(i)}$.
+We can solve for an approximation of the error $\hat{e}^{(i)}$ using the residual.
+We then use that approximate error to compute a correction to the original $x^{(i)}$.
+This modified problem looks like
+
+
+$$B\hat{e}^{(i)} = r^{(i)} \text{ where } B \sim A$$
+
+Then the correction be applied to get the next approximate solution
+
+$$x^{(i+1)} = x^{(i)} + \hat{e}^{i}$$
+
+\section{Relexation}
+
+The trick with the error approximation is in the choice of $B$.
+In general we want $A^{-1}y \approx B^{-1}y$ for most $y$.
+However we also want $Be = r$ to very easy to solve.
+
+For the Jacobi iteration we have
+
+$$B = \text{diag}(A) = D_A \text{ (Diagonal part of A)}$$.
+
+For Gauss-Seidel iteration we have
+
+$$B = L_A \text{ (Lower triangular part of A)}$$
+
+$B$ is a relaxed version of $A$.
+
+\section{Jacobi Iteration}
+
+The iterations is defined by
+
+$$x^{(i + 1)} = x^{(i)} + D_A^{-1}r^{(i)} = x^{(i)}+D_A^{-1}\left(b - Ax^{(i)}\right)$$.
+
+For implementation this is typically re-formulated as
+
+$$x^{(i+1)} = D_A^{-1}\left(b - (A - D_A)x^{(i)}\right)$$
+
+We can create some psuedo code for this algorithm.
+
+\begin{algorithm}
+  \caption{Jacobi Iteration}
+  \begin{algorithmic}
+  \For{i in 1 to n}
+  \State{xnew[i] = (b[i] - sum(A[i, j] * x[j], j=1..i-1) - sum(A[i, j] * x[j],
+    j=i+1..n)) / A[i, i]}
+  \EndFor
+  \For{i in 1 to n}
+  \State{x[i] = xnew[i]}
+  \EndFor
+  \end{algorithmic}
+\end{algorithm}
+
+This algorithm requires the additional $xnew$ vector, but the elements have no
+dependency on one another so can be computed in any order or in parallel.
+
+It is also important to note that generally Jacobi iteration only works on
+diagonally dominant matrices.
+
+\section{Gauss-Seidel Iteration}
+
+The iteration is defined by
+
+$$x^{(i+1)} = x^{(i)} + L_A^{-1}r^{(i)} = x^{(i)} + L_A^{-1}\left( b - Ax^{(i)}
+\right)$$
+
+blah blah
+
+This method usually converges faster than Jacobi iteration but is strictly sequential.
+
+\section{Bibliographic Notes}
+
+This is a slide deck from a scientific computing course at TUM (I think)
+
+\cite{Bader2013}.
+
+\printbibliography
+\end{document}
